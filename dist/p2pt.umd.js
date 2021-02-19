@@ -9935,11 +9935,13 @@ class P2PT extends EventEmitter {
    *
    * @param array announceURLs List of announce tracker URLs
    * @param string identifierString Identifier used to discover peers in the network
+   * @param object options Configuration object to pass to WebSocketTracker client
    */
-  constructor (announceURLs = [], identifierString = '') {
+  constructor (announceURLs = [], identifierString = '', options = {}) {
     super()
 
     this.announceURLs = announceURLs
+    this.options = options
     this.trackers = {}
     this.peers = {}
     this.msgChunks = {}
@@ -10065,6 +10067,39 @@ class P2PT extends EventEmitter {
   }
 
   /**
+   * Add a tracker
+   * @param string announceURL Tracker Announce URL
+   */
+  addTracker (announceURL) {
+    if (this.announceURLs.indexOf(announceURL) !== -1) {
+      throw new Error('Tracker already added')
+    }
+
+    const key = this.announceURLs.push(announceURL)
+
+    this.trackers[key] = new WebSocketTracker(this, announceURL, this.options)
+    this.trackers[key].announce(this._defaultAnnounceOpts())
+  }
+
+  /**
+   * Remove a tracker without destroying peers
+   */
+  removeTracker (announceURL) {
+    const key = this.announceURLs.indexOf(announceURL)
+
+    if (key === -1) {
+      throw new Error('Tracker does not exist')
+    }
+
+    // hack to not destroy peers
+    this.trackers[key].peers = []
+    this.trackers[key].destroy()
+
+    delete this.trackers[key]
+    delete this.announceURLs[key]
+  }
+
+  /**
    * Remove a peer from the list if all channels are closed
    * @param integer id Peer ID
    */
@@ -10147,9 +10182,7 @@ class P2PT extends EventEmitter {
   requestMorePeers () {
     return new Promise(resolve => {
       for (const key in this.trackers) {
-        this.trackers[key].announce({
-          numwant: 50
-        })
+        this.trackers[key].announce(this._defaultAnnounceOpts())
       }
       resolve(this.peers)
     })
@@ -10243,10 +10276,8 @@ class P2PT extends EventEmitter {
    */
   _fetchPeers () {
     for (const key in this.announceURLs) {
-      this.trackers[key] = new WebSocketTracker(this, this.announceURLs[key])
-      this.trackers[key].announce({
-        numwant: 50
-      })
+      this.trackers[key] = new WebSocketTracker(this, this.announceURLs[key], this.options)
+      this.trackers[key].announce(this._defaultAnnounceOpts())
     }
   }
 }

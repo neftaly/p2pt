@@ -53,7 +53,7 @@ This event is emitted when some error happens with connection to tracker.
 
 Arguments passed to Event Handler: `Error` object, `stats` Object
 
-### `new P2PT(announceURLs = [], identifierString = '')`
+### `new P2PT(announceURLs = [], identifierString = '', options = {})`
 Instantiates the class
 * **Arguments:**
   * **announceURLs:** `Array`
@@ -62,6 +62,9 @@ Instantiates the class
   * **identifierString:** `String`
     * **Description:** Identifier used to discover peers in the network
     * **Default:** `''`
+  * **options:** `Object`
+    * **Description:** Configuration object to pass to WebSocketTracker client
+    * **Default:** `{}`
 
 ```javascript
 // Find public WebTorrent tracker URLs here : https://github.com/ngosang/trackerslist/blob/master/trackers_all_ws.txt
