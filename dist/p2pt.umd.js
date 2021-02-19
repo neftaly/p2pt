@@ -9935,13 +9935,13 @@ class P2PT extends EventEmitter {
    *
    * @param array announceURLs List of announce tracker URLs
    * @param string identifierString Identifier used to discover peers in the network
-   * @param object options Configuration object to pass to WebSocketTracker client
+   * @param object options Configuration object to pass to WebSocketTracker WebRTC client
    */
-  constructor (announceURLs = [], identifierString = '', options = {}) {
+  constructor (announceURLs = [], identifierString = '', rtcConfig = {}) {
     super()
 
     this.announceURLs = announceURLs
-    this.options = options
+    this._rtcConfig = rtcConfig
     this.trackers = {}
     this.peers = {}
     this.msgChunks = {}
@@ -10077,7 +10077,7 @@ class P2PT extends EventEmitter {
 
     const key = this.announceURLs.push(announceURL)
 
-    this.trackers[key] = new WebSocketTracker(this, announceURL, this.options)
+    this.trackers[key] = new WebSocketTracker(this, announceURL)
     this.trackers[key].announce(this._defaultAnnounceOpts())
   }
 
@@ -10276,7 +10276,7 @@ class P2PT extends EventEmitter {
    */
   _fetchPeers () {
     for (const key in this.announceURLs) {
-      this.trackers[key] = new WebSocketTracker(this, this.announceURLs[key], this.options)
+      this.trackers[key] = new WebSocketTracker(this, this.announceURLs[key])
       this.trackers[key].announce(this._defaultAnnounceOpts())
     }
   }
