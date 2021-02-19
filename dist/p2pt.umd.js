@@ -9941,7 +9941,6 @@ class P2PT extends EventEmitter {
     super()
 
     this.announceURLs = announceURLs
-    this._rtcConfig = rtcConfig
     this.trackers = {}
     this.peers = {}
     this.msgChunks = {}
@@ -9949,6 +9948,8 @@ class P2PT extends EventEmitter {
 
     if (identifierString) { this.setIdentifier(identifierString) }
 
+    this._rtcConfig = rtcConfig
+    this.rtcConfig = rtcConfig
     this._peerIdBuffer = randombytes(20)
     this._peerId = this._peerIdBuffer.toString('hex')
     this._peerIdBinary = this._peerIdBuffer.toString('binary')
